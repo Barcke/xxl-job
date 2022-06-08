@@ -1,5 +1,6 @@
 package com.xxl.job.core.thread;
 
+import cn.hutool.core.util.RandomUtil;
 import com.xxl.job.core.biz.model.HandleCallbackParam;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.biz.model.TriggerParam;
@@ -10,6 +11,7 @@ import com.xxl.job.core.handler.IJobHandler;
 import com.xxl.job.core.log.XxlJobFileAppender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -17,7 +19,10 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.*;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -93,6 +98,9 @@ public class JobThread extends Thread{
     @Override
 	public void run() {
 
+    	//写入MDC 信息
+		MDC.put("requestId", RandomUtil.randomString(32));
+
     	// init
     	try {
 			handler.init();
@@ -133,16 +141,13 @@ public class JobThread extends Thread{
 						// limit timeout
 						Thread futureThread = null;
 						try {
-							FutureTask<Boolean> futureTask = new FutureTask<Boolean>(new Callable<Boolean>() {
-								@Override
-								public Boolean call() throws Exception {
+							FutureTask<Boolean> futureTask = new FutureTask<Boolean>(() -> {
 
-									// init job context
-									XxlJobContext.setXxlJobContext(xxlJobContext);
+								// init job context
+								XxlJobContext.setXxlJobContext(xxlJobContext);
 
-									handler.execute();
-									return true;
-								}
+								handler.execute();
+								return true;
 							});
 							futureThread = new Thread(futureTask);
 							futureThread.start();

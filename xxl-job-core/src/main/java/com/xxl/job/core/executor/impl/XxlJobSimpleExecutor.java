@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -29,7 +28,7 @@ public class XxlJobSimpleExecutor extends XxlJobExecutor {
         this.xxlJobBeanList = xxlJobBeanList;
     }
 
-
+    @Override
     public void start() {
 
         // init JobHandler Repository (for method)
@@ -43,6 +42,7 @@ public class XxlJobSimpleExecutor extends XxlJobExecutor {
         }
     }
 
+    @Override
     public void destroy() {
         super.destroy();
     }
@@ -75,16 +75,6 @@ public class XxlJobSimpleExecutor extends XxlJobExecutor {
                 if (loadJobHandler(name) != null) {
                     throw new RuntimeException("xxl-job jobhandler[" + name + "] naming conflicts.");
                 }
-
-                // execute method
-                /*if (!(method.getParameterTypes().length == 1 && method.getParameterTypes()[0].isAssignableFrom(String.class))) {
-                    throw new RuntimeException("xxl-job method-jobhandler param-classtype invalid, for[" + bean.getClass() + "#" + method.getName() + "] , " +
-                            "The correct method format like \" public ReturnT<String> execute(String param) \" .");
-                }
-                if (!method.getReturnType().isAssignableFrom(ReturnT.class)) {
-                    throw new RuntimeException("xxl-job method-jobhandler return-classtype invalid, for[" + bean.getClass() + "#" + method.getName() + "] , " +
-                            "The correct method format like \" public ReturnT<String> execute(String param) \" .");
-                }*/
 
                 executeMethod.setAccessible(true);
 

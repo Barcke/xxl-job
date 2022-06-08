@@ -11,13 +11,15 @@ public enum ExecutorBlockStrategyEnum {
     COVER_EARLY("Cover Early");
 
     private String title;
-    private ExecutorBlockStrategyEnum (String title) {
+
+    ExecutorBlockStrategyEnum(String title) {
         this.title = title;
     }
 
     public void setTitle(String title) {
         this.title = title;
     }
+
     public String getTitle() {
         return title;
     }

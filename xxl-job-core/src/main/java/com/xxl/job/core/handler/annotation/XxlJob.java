@@ -27,4 +27,35 @@ public @interface XxlJob {
      */
     String destroy() default "";
 
+    /**
+     * cron
+     * @return
+     */
+    String cron();
+
+    /**
+     * 报警邮件
+     */
+    String alarmEmail() default "";
+
+    /**
+     * 失败重试次数
+     */
+    int executorFailRetryCount() default -1;
+
+    /**
+     * executorTimeout
+     */
+    int executorTimeout() default 0;
+
+    /**
+     * 负责人
+     */
+    String author() default "";
+
+    /**
+     * 任务描述
+     */
+    String jobDesc();
+
 }

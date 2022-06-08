@@ -75,8 +75,41 @@
 
 	</dependencies>
 
+	<profiles>
+		<profile>
+			<id>test</id>
+			<properties>
+				<docker.tag>test</docker.tag>
+			</properties>
+		</profile>
+		<profile>
+			<id>prod</id>
+			<properties>
+				<!--会取最新的commitId-->
+				<docker.tag>${git.commit.id.abbrev}</docker.tag>
+			</properties>
+		</profile>
+	</profiles>
+
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>pl.project13.maven</groupId>
+				<artifactId>git-commit-id-plugin</artifactId>
+				<version>2.2.0</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>revision</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<verbose>true</verbose>
+					<generateGitPropertiesFile>true</generateGitPropertiesFile>
+					<injectAllReactorProjects>true</injectAllReactorProjects>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
@@ -89,23 +122,44 @@
 					</execution>
 				</executions>
 			</plugin>
-			<!-- docker -->
 			<plugin>
-				<groupId>com.spotify</groupId>
-				<artifactId>docker-maven-plugin</artifactId>
-				<version>0.4.13</version>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<version>1.6.1</version>
 				<configuration>
-					<!-- made of '[a-z0-9-_.]' -->
-					<imageName>${project.artifactId}:${project.version}</imageName>
-					<dockerDirectory>${project.basedir}</dockerDirectory>
-					<resources>
-						<resource>
-							<targetPath>/</targetPath>
-							<directory>${project.build.directory}</directory>
-							<include>${project.build.finalName}.jar</include>
-						</resource>
-					</resources>
+					<from>
+						<image>az7ejq6r.mirror.aliyuncs.com/library/openjdk:8</image>
+					</from>
+					<to>
+						<image>registry.cn-shenzhen.aliyuncs.com/siwei-times/xxl-job</image>
+						<!-- optional: create a tag based on the git commit id (via the git-commit-id plugin): -->
+						<tags>
+							<tag>${docker.tag}</tag>
+						</tags>
+					</to>
+					<container>
+						<mainClass>com.xxl.job.admin.XxlJobAdminApplication</mainClass>
+						<jvmFlags>
+							<jvmFlag>-server</jvmFlag>
+							<jvmFlag>-Xms128m</jvmFlag>
+							<jvmFlag>-Xmx1024m</jvmFlag>
+							<jvmFlag>-Djava.awt.headless=true</jvmFlag>
+							<!-- 时区 -->
+							<jvmFlag>-Duser.timezone=PRC</jvmFlag>
+						</jvmFlags>
+						<useCurrentTimestamp>true</useCurrentTimestamp>
+					</container>
+					<allowInsecureRegistries>true</allowInsecureRegistries>
 				</configuration>
+				<executions>
+					<execution>
+						<id>build-and-push-docker-image</id>
+						<phase>package</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>
