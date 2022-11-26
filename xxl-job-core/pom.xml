@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>com.xuxueli</groupId>
 		<artifactId>xxl-job</artifactId>
-		<version>2.2.0-extend.4</version>
+		<version>2.2.0-extend.9</version>
 	</parent>
 	<artifactId>xxl-job-core</artifactId>
 	<packaging>jar</packaging>
@@ -76,5 +76,24 @@
 		</dependency>
 
 	</dependencies>
+
+	<build>
+		<plugins>
+			<!--配置生成源码包-->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>3.0.1</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>

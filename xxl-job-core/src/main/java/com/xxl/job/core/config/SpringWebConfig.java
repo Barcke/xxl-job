@@ -1,5 +1,6 @@
 package com.xxl.job.core.config;
 
+import com.xxl.job.core.web.controller.XxlJobController;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,6 +14,6 @@ import org.springframework.context.annotation.Configuration;
   * @description: 
   **/
 @Configuration
-@ComponentScan(basePackages = {"com.xxl.job.core.web.controller"})
+@ComponentScan(basePackageClasses = XxlJobController.class)
 public class SpringWebConfig {
 }

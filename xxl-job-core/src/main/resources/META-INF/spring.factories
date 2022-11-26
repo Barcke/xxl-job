@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.xxl.job.core.config.SpringWebConfig
+  com.xxl.job.core.config.SpringWebConfig,\
+  com.xxl.job.core.config.XxlJobConfig

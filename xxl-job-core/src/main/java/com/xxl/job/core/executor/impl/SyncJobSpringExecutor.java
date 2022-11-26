@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -40,6 +41,7 @@ import java.util.concurrent.TimeUnit;
   * @slogan: 源于生活 高于生活
   * @description: 
   **/
+@ConditionalOnProperty(name = "xxl.job.enable", havingValue = "true", matchIfMissing = true)
 public class SyncJobSpringExecutor implements ApplicationContextAware, SmartInitializingSingleton {
 
     private static final Logger logger = LoggerFactory.getLogger(SyncJobSpringExecutor.class);
@@ -50,6 +52,7 @@ public class SyncJobSpringExecutor implements ApplicationContextAware, SmartInit
     @Override
     public void afterSingletonsInstantiated() {
 
+        //避免客户端有多个，通过redis做一个分布式的锁避免重复注册
         String redisKey = "xxl-job-sync-info:xxl:y" + contentPath;
 
         StringRedisTemplate stringRedisTemplate = applicationContext.getBean(StringRedisTemplate.class);

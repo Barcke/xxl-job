@@ -115,6 +115,7 @@ public class XxlJobServerHttpUtil {
 
     /**
      * 获取服务信息，主要是登陆xxl-job用户名密码
+     * 主要是用于获取登陆server的用户名和密码
      * @param url 定时任务服务端url
      * @return 服务信息
      */
