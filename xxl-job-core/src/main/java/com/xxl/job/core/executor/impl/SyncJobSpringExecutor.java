@@ -57,55 +57,54 @@ public class SyncJobSpringExecutor implements ApplicationContextAware, SmartInit
 
         StringRedisTemplate stringRedisTemplate = applicationContext.getBean(StringRedisTemplate.class);
 
-        String syncId = stringRedisTemplate.opsForValue().get(redisKey);
-
-        if (!StringUtils.isEmpty(syncId)) {
-            return;
-        }
-
-        stringRedisTemplate.opsForValue().set(redisKey,"1",10, TimeUnit.MINUTES);
-
-        logger.info("同步XXL-JOB任务开始");
-
-        Object object = applicationContext
-                .getBeansWithAnnotation(EnableSyncJob.class)
-                .entrySet()
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new NullPointerException("Not found EnableSyncJob Class"))
-                .getValue();
-
-        EnableSyncJob enableSyncJob = AnnotationUtils.findAnnotation(object.getClass(), EnableSyncJob.class);
-
-        logger.info("获取到注解信息enableSyncJob:{}",JSONUtil.toJsonStr(enableSyncJob));
-
-        String url = applicationContext.getEnvironment().getProperty("xxl.job.admin.addresses");
-
-        if (StringUtils.isEmpty(url)) {
-            throw new NullPointerException("Please check the server address ---》 xxl.job.admin.addresses");
-        }
-
-        XxlJobServerHttpUtil xxlJobServerHttpUtil = null;
-
         try {
-            xxlJobServerHttpUtil = new XxlJobServerHttpUtil(url);
-        } catch (Exception e) {
-            e.printStackTrace();
+
+            String syncId = stringRedisTemplate.opsForValue().get(redisKey);
+
+            if (!StringUtils.isEmpty(syncId)) {
+                return;
+            }
+
+            stringRedisTemplate.opsForValue().set(redisKey,"1",10, TimeUnit.MINUTES);
+
+            logger.info("同步XXL-JOB任务开始");
+
+            Object object = applicationContext
+                    .getBeansWithAnnotation(EnableSyncJob.class)
+                    .entrySet()
+                    .stream()
+                    .findFirst()
+                    .orElseThrow(() -> new NullPointerException("Not found EnableSyncJob Class"))
+                    .getValue();
+
+            EnableSyncJob enableSyncJob = AnnotationUtils.findAnnotation(object.getClass(), EnableSyncJob.class);
+
+            logger.info("获取到注解信息enableSyncJob:{}",JSONUtil.toJsonStr(enableSyncJob));
+
+            String url = applicationContext.getEnvironment().getProperty("xxl.job.admin.addresses");
+
+            if (StringUtils.isEmpty(url)) {
+                throw new NullPointerException("Please check the server address ---》 xxl.job.admin.addresses");
+            }
+
+            XxlJobServerHttpUtil xxlJobServerHttpUtil = new XxlJobServerHttpUtil(url);
+
+            /**
+             * 初始化执行器
+             */
+            Integer groupId = this.initActuatorData(xxlJobServerHttpUtil);
+
+            /**
+             * 同步任务
+             */
+            this.syncJobInfo(groupId,xxlJobServerHttpUtil,enableSyncJob);
+
+            logger.info("同步XXL-JOB任务结束");
+        }catch (Exception e){
+            logger.error("同步XXL-JOB失败", e);
+        }finally {
+            stringRedisTemplate.delete(redisKey);
         }
-
-        /**
-         * 初始化执行器
-         */
-        Integer groupId = this.initActuatorData(xxlJobServerHttpUtil);
-
-        /**
-         * 同步任务
-         */
-        this.syncJobInfo(groupId,xxlJobServerHttpUtil,enableSyncJob);
-
-        logger.info("同步XXL-JOB任务结束");
-
-        stringRedisTemplate.delete(redisKey);
     }
 
     /**

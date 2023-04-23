@@ -226,7 +226,6 @@ public class XxlJobServerHttpUtil {
                 StringUtils.isEmpty(jobInfoData.getJobCron())
                         || StringUtils.isEmpty(jobInfoData.getExecutorHandler())
                         || Objects.isNull(jobInfoData.getJobGroup())
-                        || StringUtils.isEmpty(jobInfoData.getAuthor())
                         || StringUtils.isEmpty(jobInfoData.getJobDesc())
         ){
             throw new NullPointerException("Please ensure that the parameters are correct");
